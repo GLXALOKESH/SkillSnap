@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import NavBar from '../Components/NavBar';
 
 const Course = () => {
   const [courseInput, setCourseInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const navigate = useNavigate();
 
   // Example user data
   const user = {
@@ -43,7 +45,10 @@ const Course = () => {
     // Simulate API call
     setTimeout(() => {
       setIsGenerating(false);
-      alert(`Generating course for: ${courseInput}`);
+      // Convert course input to URL-friendly slug
+      const courseSlug = courseInput.toLowerCase().replace(/\s+/g, '-');
+      // Navigate to the CourseStructure page with the course slug
+      navigate(`/course/${courseSlug}`);
     }, 2000);
   };
 
