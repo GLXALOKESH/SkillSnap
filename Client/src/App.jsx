@@ -6,6 +6,7 @@ import Signup from './pages/SignUp'
 import Dashboard from './pages/Dashboard'
 import Course from './pages/Course'
 import NavBar from './Components/NavBar'
+import HomePage from './pages/HomePage/HomePage';
 import './App.css'
 
 function App() {
@@ -20,7 +21,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/home" element={<Dashboard />} />
+        <Route path="/home" element={<HomePage />} />
         <Route path="/course" element={<Course />} />
         <Route path="/certificate" element={<Dashboard />} />
         <Route path="/profile" element={<Dashboard />} />
