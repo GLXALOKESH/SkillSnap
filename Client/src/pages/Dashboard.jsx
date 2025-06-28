@@ -1,5 +1,5 @@
 import React from 'react';
-import NavBar from '../components/NavBar';
+import NavBar from '../Components/NavBar';
 
 const Dashboard = () => {
   // Example user data - you can replace this with real user data from your auth system
@@ -14,7 +14,7 @@ const Dashboard = () => {
       <NavBar user={user} />
       
       {/* Main Content */}
-      <main className="flex-1 lg:ml-0 p-6 lg:p-8">
+      <main className="flex-1 lg:ml-64 p-6 lg:p-8">
         <div className="max-w-6xl mx-auto">
           <div className="bg-[#1a1a1a] rounded-2xl p-8 border border-gray-800">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 text-transparent bg-clip-text mb-4">
