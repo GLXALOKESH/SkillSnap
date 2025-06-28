@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   name: String,
   email: { type: String, unique: true },
   password: String,
+  username: { type: String, unique: true },
   walletAddress: { type: String, default: '' },
   totalXP: { type: Number, default: 0 },
   certificates: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Certificate' }],
@@ -15,7 +16,7 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 userSchema.pre("save", async function (next) {
-  
+
   if (!this.isModified("password")) return next();
 
   this.password = await bcrype.hash(this.password, 10);

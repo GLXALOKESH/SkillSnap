@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
 import { FaArrowLeft, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { motion } from 'framer-motion';
-
+import axios from 'axios';
+url = "http://localhost:3000"
 const Register = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -25,7 +26,6 @@ const Register = () => {
   const validate = () => {
     const newErrors = {};
     if (!form.fullname.trim()) newErrors.fullname = 'Full name is required';
-    if (!form.username.trim()) newErrors.username = 'Username is required';
     if (!form.email.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email)) {
       newErrors.email = 'Valid email is required';
     }
@@ -42,10 +42,19 @@ const Register = () => {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
     setErrors(validationErrors);
+    const response = await axios.post(`${url}/api/v1/users/register`,  {
+      name: form.fullname,
+      email: form.email,
+      password: form.password,
+      }, { withCredentials: true });
+    console.log(response.data);
+    if (response.data.success) {
+      navigate('/login');
+    }
     setSubmitted(true);
     if (Object.keys(validationErrors).length === 0) {
       // Submit logic here
