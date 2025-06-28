@@ -81,7 +81,6 @@ Output the course in structured JSON format like this:
     title: data.title,
     topic,
     description: data.description,
-    structure: JSON.stringify(data.modules),
     creator: userId,
     generatedByAI: true
   });
@@ -131,6 +130,17 @@ Output the course in structured JSON format like this:
 });
 
 
+const fetchallCourses = asyncHandler(async (req, res) => {
+  const courses = await Course.find({}).populate("creator", "name email username").sort
+({ createdAt: -1 });
+  if (!courses || courses.length === 0) {
+    throw new ApiError(404, "No courses found");
+  }
+
+  res.status(200).json(new ApiResponce("Courses fetched successfully", courses));
+} );  
+
 export {
     createCourse,
+    fetchallCourses
 };
