@@ -10,24 +10,17 @@ import JSON5 from "json5";
 import Course from "../models/course.models.js";
 import Lesson from "../models/lesson.model.js";
 import Module from "../models/modules.model.js";
+import Quiz from "../models/quiz.model.js";
 import { log } from "console";
 
 
 const createCourse = asyncHandler(async (req, res) => {
-    //take topic from user 
-    //call gemini api to generate course content
-    //save lessons to db
-    //save course to db
-console.log("got request to create course");
+  const { topic } = req.body;
+  const userId = req.user._id;
 
-    const { topic } = req.body;
+  if (!topic) throw new ApiError(400, "All fields are required");
 
-    if (!topic) {
-        throw new ApiError(400, "All fields are required");
-    }
-console.log("giving prompt to gemini api", topic);
-
-   const  prompt = `You are an expert course designer and AI tutor. Generate a complete micro-course based on the following user input:
+  const  prompt = `You are an expert course designer and AI tutor. Generate a complete micro-course based on the following user input:
 
 Topic: "${topic}"
 
@@ -48,7 +41,6 @@ Output the course in structured JSON format like this:
 {
   "title": "Course Title",
   "description": "Short course description.",
-  "structure": "A structured outline of the course with modules and lessons.",
   "modules": [
     {
       "title": "Module 1 Title",
@@ -76,26 +68,66 @@ Output the course in structured JSON format like this:
     // More modules...
   ]
 }
-`
-console.log("starting genarating");
+`;
 
-    const response = await callGeminiTextGenAPI(prompt);
-    console.log("Gemini API response:", response);
-    
-    if (!response || !response.text) {
-        throw new ApiError(500, "Failed to generate course content");
+  const response = await callGeminiTextGenAPI(prompt);
+  const data = safeJsonParseFromGemini(response);
+
+  if (!data || !data.modules || !data.modules.length) {
+    throw new ApiError(500, "Gemini did not return course modules");
+  }
+
+  const course = new Course({
+    title: data.title,
+    topic,
+    description: data.description,
+    structure: JSON.stringify(data.modules),
+    creator: userId,
+    generatedByAI: true
+  });
+  await course.save();
+
+  const allLessonIds = [];
+
+  for (const moduleData of data.modules) {
+    const lessonIds = [];
+
+    for (const lesson of moduleData.lessons) {
+      const newLesson = new Lesson({
+        course: course._id,
+        title: lesson.title,
+        content: lesson.content
+      });
+
+      const quiz = new Quiz({
+        lesson: newLesson._id,
+        questions: lesson.quiz.map(q => ({
+          question: q.question,
+          options: q.options,
+          correctAnswer: q.answerIndex
+        }))
+      });
+      await quiz.save();
+
+      newLesson.quiz = quiz._id;
+      await newLesson.save();
+
+      lessonIds.push(newLesson._id);
+      allLessonIds.push(newLesson._id);
     }
 
-    // const course = await req.db.Course.create({
-    //     title,
-    //     description,
-    //     category,
-    //     price,
-    //     level,
-    //     createdBy: req.user._id
-    // });
+    const module = new Module({
+      course: course._id,
+      title: moduleData.title,
+      lessons: lessonIds
+    });
+    await module.save();
+  }
 
-    res.status(201).json(new ApiResponce("Course created successfully"));
+  course.lessons = allLessonIds;
+  await course.save();
+
+  res.status(201).json(new ApiResponce("Course created successfully", course));
 });
 
 

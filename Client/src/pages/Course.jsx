@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import NavBar from '../Components/NavBar';
-
+import axios from 'axios';
+const url = "http://localhost:3000";
 const Course = () => {
   const [courseInput, setCourseInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -41,8 +42,15 @@ const Course = () => {
   const handleGenerate = async () => {
     if (!courseInput.trim()) return;
     
+
     setIsGenerating(true);
     // Simulate API call
+    const response = await axios.post(`${url}/api/v1/courses/create`, {
+      topic: courseInput
+    },{ withCredentials: true });
+    console.log(response.data);
+    // Simulate a delay for generating course
+
     setTimeout(() => {
       setIsGenerating(false);
       // Convert course input to URL-friendly slug
