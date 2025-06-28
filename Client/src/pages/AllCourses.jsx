@@ -76,7 +76,7 @@ const AllCertificate = () => {
           >
             <div className="mb-8">
               <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 text-transparent bg-clip-text mb-4">
-                All Certificates
+                All Courses
               </h1>
               <p className="text-gray-400">
                 Track all your certificates and learning progress
@@ -114,7 +114,7 @@ const AllCertificate = () => {
             <div className="space-y-8">
               {certificates.completed.length > 0 && (
                 <CertificateSection
-                  title="🏆 Completed Certificates"
+                  title="🏆 Completed Courses"
                   items={certificates.completed}
                   type="completed"
                 />

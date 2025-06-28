@@ -30,9 +30,9 @@ const NavBar = ({ user = { name: "John Doe", avatar: null } }) => {
       label: "Certificate"
     },
     {
-      to: "/all-certificates",
+      to: "/all-courses",
       icon: FaCertificate,
-      label: "All Certificates"
+      label: "All Courses"
     },
     {
       to: "/profile",

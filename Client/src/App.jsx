@@ -8,7 +8,7 @@ import Course from './pages/Course'
 import NavBar from './Components/NavBar'
 import HomePage from './pages/HomePage/HomePage';
 import Certificate from './pages/Certificate'
-import AllCertificate from './pages/AllCertificate'
+import AllCertificate from './pages/AllCourses'
 import CourseStructure from './pages/CourseStructure'
 import CourseContain from './pages/CourseContain'
 
@@ -34,7 +34,7 @@ function App() {
         <Route path="/course/:courseId" element={<CourseStructure />} />
         <Route path="/learn/:courseId" element={<CourseContain />} />
         <Route path="/certificate" element={<Certificate />} />
-        <Route path="/all-certificates" element={<AllCertificate />} />
+        <Route path="/all-courses" element={<AllCertificate />} />
         <Route path="/profile" element={<Dashboard />} />
         <Route path="/settings" element={<Dashboard />} />
         {/* Add more routes as needed */}
