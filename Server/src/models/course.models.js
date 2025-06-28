@@ -4,6 +4,7 @@ const courseSchema = new mongoose.Schema({
   title: String,
   topic: String,
   description: String,
+  structure: String,
   creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   lessons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }],
   isPublic: { type: Boolean, default: true },

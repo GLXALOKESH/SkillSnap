@@ -22,7 +22,7 @@ app.use(cookieParser())
 //router import 
 
 import userRouter from "./routes/user.route.js"
-import courseRouter from "./routes/course.route.js"
+import courseRouter from "./routes/courses.route.js"
 
 //router decleration
 
