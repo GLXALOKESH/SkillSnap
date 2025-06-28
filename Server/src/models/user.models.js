@@ -4,81 +4,18 @@ import jwt from "jsonwebtoken";
 
 
 
-const userSchema = mongoose.Schema(
-  {
-    username: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-      index: true,
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-      index: true,
-    },
-    password: {
-      type: String,
-      required: true,
-    },
-    refreshToken: {
-      type: String,
-    },
-    authProvider: { type: String, default: 'local' },
-    xp: { type: Number, default: 0 },
-    streak: { type: Number, default: 0 },
-    tier: { type: String, enum: ['free', 'pro', 'team'], default: 'free' },  
-    role: { type: String, enum: ['admin', 'user'], default: 'user' },
-    subjects: [
-      {
-        type:String
-      },
-    ],
-    summerySubjects: [
-      {
-        type: String,
-      },
-    ],
-    summaries: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Summary",
-      },
-    ],
-    notes: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Note",
-      },
-    ],
-    flashcardGroups: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "FlashcardGroup",
-      },
-    ],
-    Quizes: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Quiz",
-      },
-    ],
-  },
-  { timestamps: true }
-);
-
+const userSchema = new mongoose.Schema({
+  name: String,
+  email: { type: String, unique: true },
+  password: String,
+  walletAddress: { type: String, default: '' },
+  totalXP: { type: Number, default: 0 },
+  certificates: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Certificate' }],
+  createdCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }],
+}, { timestamps: true });
 
 userSchema.pre("save", async function (next) {
+  
   if (!this.isModified("password")) return next();
 
   this.password = await bcrype.hash(this.password, 10);
