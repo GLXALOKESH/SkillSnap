@@ -8,14 +8,20 @@ import Course from './pages/Course'
 import NavBar from './Components/NavBar'
 import HomePage from './pages/HomePage/HomePage';
 import Certificate from './pages/Certificate'
+import AllCertificate from './pages/AllCertificate'
 import CourseStructure from './pages/CourseStructure'
+import CourseContain from './pages/CourseContain'
 
 import './App.css'
 
 function App() {
   const location = useLocation();
   const hideNavbarPaths = ['/', '/signup', '/login'];
-  const shouldShowNavbar = !hideNavbarPaths.includes(location.pathname);
+  const currentPath = location.pathname;
+  
+  // Hide default navbar on course content pages
+  const isCoursePage = currentPath.startsWith('/learn/');
+  const shouldShowNavbar = !hideNavbarPaths.includes(currentPath) && !isCoursePage;
 
   return (
     <div>
@@ -26,7 +32,9 @@ function App() {
         <Route path="/home" element={<HomePage />} />
         <Route path="/course" element={<Course />} />
         <Route path="/course/:courseId" element={<CourseStructure />} />
+        <Route path="/learn/:courseId" element={<CourseContain />} />
         <Route path="/certificate" element={<Certificate />} />
+        <Route path="/all-certificates" element={<AllCertificate />} />
         <Route path="/profile" element={<Dashboard />} />
         <Route path="/settings" element={<Dashboard />} />
         {/* Add more routes as needed */}
