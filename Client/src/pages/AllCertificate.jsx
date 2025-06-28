@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const Certificate = () => {
+const AllCertificate = () => {
   // Demo certificate data
   const certificates = {
     completed: [
@@ -60,6 +60,9 @@ const Certificate = () => {
     ]
   };
 
+  const totalCertificates = certificates.completed.length + certificates.ongoing.length;
+  const completionRate = Math.round((certificates.completed.length / totalCertificates) * 100);
+
   return (
     <div className="flex min-h-screen bg-[#0d0d0d]">
       {/* Main Content */}
@@ -73,20 +76,20 @@ const Certificate = () => {
           >
             <div className="mb-8">
               <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 text-transparent bg-clip-text mb-4">
-                Completed Certificates
+                All Certificates
               </h1>
               <p className="text-gray-400">
-                Your blockchain-verified certificates and achievements
+                Track all your certificates and learning progress
               </p>
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <motion.div
                 className="bg-[#2a2a2a] p-6 rounded-xl border border-gray-700 hover:border-pink-500 transition-all"
                 whileHover={{ scale: 1.02 }}
               >
-                <h3 className="text-lg font-semibold text-pink-400 mb-2">Total Certificates</h3>
+                <h3 className="text-lg font-semibold text-green-400 mb-2">Completed</h3>
                 <p className="text-2xl font-bold text-white">{certificates.completed.length}</p>
               </motion.div>
               
@@ -94,18 +97,36 @@ const Certificate = () => {
                 className="bg-[#2a2a2a] p-6 rounded-xl border border-gray-700 hover:border-pink-500 transition-all"
                 whileHover={{ scale: 1.02 }}
               >
-                <h3 className="text-lg font-semibold text-pink-400 mb-2">Average Grade</h3>
-                <p className="text-2xl font-bold text-white">A+</p>
+                <h3 className="text-lg font-semibold text-blue-400 mb-2">In Progress</h3>
+                <p className="text-2xl font-bold text-white">{certificates.ongoing.length}</p>
+              </motion.div>
+              
+              <motion.div
+                className="bg-[#2a2a2a] p-6 rounded-xl border border-gray-700 hover:border-pink-500 transition-all"
+                whileHover={{ scale: 1.02 }}
+              >
+                <h3 className="text-lg font-semibold text-pink-400 mb-2">Completion Rate</h3>
+                <p className="text-2xl font-bold text-white">{completionRate}%</p>
               </motion.div>
             </div>
 
             {/* Certificate Sections */}
             <div className="space-y-8">
-              <CertificateSection
-                title="🏆 Your Achievements"
-                items={certificates.completed}
-                type="completed"
-              />
+              {certificates.completed.length > 0 && (
+                <CertificateSection
+                  title="🏆 Completed Certificates"
+                  items={certificates.completed}
+                  type="completed"
+                />
+              )}
+              
+              {certificates.ongoing.length > 0 && (
+                <CertificateSection
+                  title="📚 In Progress"
+                  items={certificates.ongoing}
+                  type="ongoing"
+                />
+              )}
             </div>
           </motion.div>
         </div>
@@ -140,6 +161,43 @@ const CertificateSection = ({ title, items, type }) => {
                 <div className="text-gray-400 mb-2">Grade: {item.grade}</div>
                 <div className="text-gray-400 mb-2">Issuer: {item.issuer}</div>
                 <div className="text-sm text-pink-400">Chain ID: {item.chainId}</div>
+                <div className="mt-4">
+                  <button className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white py-2 px-4 rounded-lg hover:opacity-90 transition-opacity">
+                    View Certificate
+                  </button>
+                </div>
+              </>
+            )}
+
+            {type === 'pending' && (
+              <>
+                <div className="mb-4">
+                  <div className="flex justify-between text-sm text-gray-400 mb-2">
+                    <span>Current Score</span>
+                    <span>Required: {item.requiredScore}%</span>
+                  </div>
+                  <div className="relative pt-1">
+                    <div className="overflow-hidden h-2 text-xs flex rounded bg-gray-700">
+                      <div
+                        style={{ width: `${(item.currentScore / item.requiredScore) * 100}%` }}
+                        className={`shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center ${
+                          item.currentScore >= item.requiredScore
+                            ? 'bg-gradient-to-r from-green-500 to-green-600'
+                            : 'bg-gradient-to-r from-red-500 to-red-600'
+                        }`}
+                      ></div>
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-400 mt-1">
+                    {item.currentScore}% / {item.requiredScore}%
+                  </div>
+                </div>
+                <div className="text-sm text-yellow-400 mb-4">{item.estimatedCompletion}</div>
+                <div className="mt-4">
+                  <button className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-2 px-4 rounded-lg hover:opacity-90 transition-opacity">
+                    Continue Learning
+                  </button>
+                </div>
               </>
             )}
 
@@ -149,12 +207,17 @@ const CertificateSection = ({ title, items, type }) => {
                   <div className="overflow-hidden h-2 text-xs flex rounded bg-gray-700">
                     <div
                       style={{ width: `${item.progress}%` }}
-                      className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-pink-500 to-purple-500"
+                      className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-blue-500 to-blue-600"
                     ></div>
                   </div>
                 </div>
-                <div className="text-gray-400">Progress: {item.progress}%</div>
-                <div className="text-sm text-pink-400">Last activity: {item.lastActivity}</div>
+                <div className="text-gray-400 mb-2">Progress: {item.progress}%</div>
+                <div className="text-sm text-blue-400 mb-4">Last activity: {item.lastActivity}</div>
+                <div className="mt-4">
+                  <button className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2 px-4 rounded-lg hover:opacity-90 transition-opacity">
+                    Continue Course
+                  </button>
+                </div>
               </>
             )}
           </motion.div>
@@ -178,4 +241,4 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-export default Certificate;
+export default AllCertificate;
