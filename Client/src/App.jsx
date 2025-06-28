@@ -3,6 +3,8 @@ import { useState } from 'react'
 import Login from './pages/Login'
 import Landing from './pages/Landing'
 import Signup from './pages/SignUp'
+import Dashboard from './pages/Dashboard'
+import Course from './pages/Course'
 import './App.css'
 
 
@@ -13,7 +15,13 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        {/* Add more routes as needed */}.
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/home" element={<Dashboard />} />
+        <Route path="/course" element={<Course />} />
+        <Route path="/certificate" element={<Dashboard />} />
+        <Route path="/profile" element={<Dashboard />} />
+        <Route path="/settings" element={<Dashboard />} />
+        {/* Add more routes as needed */}
         
       </Routes>
     </Router>
