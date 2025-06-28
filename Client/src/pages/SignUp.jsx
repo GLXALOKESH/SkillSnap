@@ -3,7 +3,7 @@ import { useNavigate, NavLink } from 'react-router-dom';
 import { FaArrowLeft, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import axios from 'axios';
-url = "http://localhost:3000"
+const url = "http://localhost:3000"
 const Register = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({

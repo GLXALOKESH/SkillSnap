@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
 import { FaArrowLeft, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { motion } from 'framer-motion';
+import axios from 'axios';
+const url = "http://localhost:3000"
 
 const Login = () => {
   const navigate = useNavigate();
@@ -24,10 +26,18 @@ const Login = () => {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
     const validationErrors = validate();
     setErrors(validationErrors);
+     const response = await axios.post(`${url}/api/v1/users/login`,  {
+      email: form.email,
+      password: form.password,
+      }, { withCredentials: true });
+    console.log(response.data);
+    if (response.data.success) {
+      navigate('/dashboard');
+    }
     setSubmitted(true);
     if (Object.keys(validationErrors).length === 0) {
       // Submit logic here
