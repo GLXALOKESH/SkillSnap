@@ -56,7 +56,7 @@ const NavBar = ({ user = { name: "John Doe", avatar: null } }) => {
       </div>
 
       {/* Desktop Sidebar */}
-      <nav className="hidden lg:flex min-h-screen w-64 bg-[#0d0d0d] text-white flex-col border-r border-gray-800 relative overflow-hidden">
+      <nav className="hidden lg:flex fixed left-0 top-0 h-screen w-64 bg-[#0d0d0d] text-white flex-col border-r border-gray-800 overflow-hidden z-30">
         {/* Background elements similar to Landing page */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 via-purple-900/10 to-pink-900/10"></div>
         

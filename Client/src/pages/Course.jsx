@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import NavBar from '../components/NavBar';
+import NavBar from '../Components/NavBar';
 
 const Course = () => {
   const [courseInput, setCourseInput] = useState('');
@@ -54,10 +54,10 @@ const Course = () => {
   return (
     <div className="flex min-h-screen bg-[#0d0d0d]">
       {/* Navigation Sidebar */}
-      <NavBar user={user} />
+      {/* <NavBar user={user} /> */}
       
       {/* Main Content */}
-      <main className="flex-1 lg:ml-0 relative overflow-hidden">
+      <main className="flex-1 lg:ml-64 relative overflow-hidden">
         {/* Background elements similar to Landing page */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-pink-900/20"></div>
         
