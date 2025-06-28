@@ -36,7 +36,7 @@ const Login = () => {
       }, { withCredentials: true });
     console.log(response.data);
     if (response.data.success) {
-      navigate('/dashboard');
+      navigate('/home');
     }
     setSubmitted(true);
     if (Object.keys(validationErrors).length === 0) {

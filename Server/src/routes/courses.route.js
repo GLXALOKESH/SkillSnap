@@ -6,7 +6,8 @@ const router = Router();
 
 
 
-router.route("/create").post(verifyToken, createCourse);
+router.route("/create").post(createCourse);
+
 
 
 
