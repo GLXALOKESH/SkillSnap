@@ -21,6 +21,7 @@ router.route("/refresh-token", refreshAuthToken);
 
 
 router.route("/get-user").post(verifyToken, getCurrentUser);
+router.route("/profile").post(verifyToken, getCurrentUser);
 
 
 export default router;

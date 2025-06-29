@@ -1,15 +1,46 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaUser, FaEnvelope, FaPhone } from 'react-icons/fa';
-
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
+const url =  'http://localhost:3000';
 const Profile = () => {
-  // Demo user data
-  const userData = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    mobile: "+1 (555) 123-4567",
-    avatar: null // You can add an image URL here
-  };
+  const { userId } = useParams();
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.post(`${url}/api/v1/users/profile`, {}, {
+          withCredentials: true, // Ensure cookies are sent with the request
+        });
+        console.log('User Profile Response:', response.data);
+        
+        setUserData(response.data.data);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+      fetchUserProfile();
+  }, []);
+
+  if (loading) {
+    return <div className="flex min-h-screen bg-[#0d0d0d] items-center justify-center text-white">Loading profile...</div>;
+  }
+
+  if (error) {
+    return <div className="flex min-h-screen bg-[#0d0d0d] items-center justify-center text-red-500">Error: {error.message}</div>;
+  }
+
+  if (!userData) {
+    return <div className="flex min-h-screen bg-[#0d0d0d] items-center justify-center text-gray-400">No user data found.</div>;
+  }
 
   return (
     <div className="flex min-h-screen bg-[#0d0d0d]">
@@ -72,7 +103,19 @@ const Profile = () => {
                     <FaPhone className="inline mr-2 text-pink-400" />
                     Mobile Number
                   </label>
-                  <p className="text-white text-lg">{userData.mobile}</p>
+                  <p className="text-white text-lg">{userData.mobile || 'N/A'}</p>
+                </div>
+                <div className="text-center mt-4">
+                  <label className="block text-sm font-medium text-gray-400 mb-2">
+                    Total XP
+                  </label>
+                  <p className="text-white text-lg">{userData.totalXP}</p>
+                </div>
+                <div className="text-center mt-4">
+                  <label className="block text-sm font-medium text-gray-400 mb-2">
+                    Wallet Address
+                  </label>
+                  <p className="text-white text-lg break-all">{userData.walletAddress || 'N/A'}</p>
                 </div>
               </div>
             </div>

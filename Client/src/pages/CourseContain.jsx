@@ -8,117 +8,137 @@ import LessonNavigation from '../components/LessonNavigation';
 import axios from 'axios';
 const url = "http://localhost:3000";
 
+
 const CourseContain = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
   const [courseContent, setCourseContent] = useState(null);
+  const [progress, setProgress] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
   const [quizResults, setQuizResults] = useState({});
 
+  // Initialize progress and fetch course/progress data
   useEffect(() => {
-    const fetchCourseContent = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`${url}/api/v1/courses/course/${courseId}`);
-        setCourseContent(response.data.data);
+        // 1. Initialize progress (creates if not exists)
+        await axios.post(`${url}/api/v1/progress/initialize/${courseId}`, {}, { withCredentials: true });
+        // 2. Fetch course content
+        const courseRes = await axios.get(`${url}/api/v1/courses/course/${courseId}`);
+        setCourseContent(courseRes.data.data);
+        // 3. Fetch progress
+        const progressRes = await axios.post(`${url}/api/v1/progress/${courseId}`, {}, { withCredentials: true });
+        setProgress(progressRes.data.data);
+        // 4. Set current lesson index from progress
+        if (progressRes.data.data && courseRes.data.data) {
+          const idx = courseRes.data.data.lessons.findIndex(
+            l => l._id === (progressRes.data.data.currentLesson?._id || progressRes.data.data.currentLesson)
+          );
+          setCurrentLessonIndex(idx >= 0 ? idx : 0);
+        }
         setLoading(false);
-        console.log(response.data.data);
       } catch (error) {
-        console.error("Error fetching course content:", error);
+        console.error("Error initializing/fetching course/progress:", error);
         setLoading(false);
       }
     };
-
-    fetchCourseContent();
+    fetchData();
+    // eslint-disable-next-line
   }, [courseId]);
 
   // Reset quiz results when changing lessons
   useEffect(() => {
-    console.log('Current lesson changed to:', currentLessonIndex);
-    console.log('Current quiz results:', quizResults);
-  }, [currentLessonIndex, quizResults]);
+    setQuizResults({});
+  }, [currentLessonIndex]);
 
   if (loading) {
     return <div className="text-center text-white">Loading course...</div>;
   }
-
-  if (!courseContent) {
-    return <div className="text-center text-white">Course not found.</div>;
+  if (!courseContent || !progress) {
+    return <div className="text-center text-white">Course not found or progress not loaded.</div>;
   }
 
   const currentLesson = courseContent.lessons[currentLessonIndex];
-  console.log('Current lesson:', currentLesson);
-  
   const totalLessons = courseContent.lessons.length;
-  const progressPercentage = Math.round(((currentLessonIndex + 1) / totalLessons) * 100);
+  const completedLessons = progress.completedLessons || [];
+  const progressPercentage = Math.round((completedLessons.length / totalLessons) * 100);
 
-  const handlePreviousLesson = () => {
+  // Navigation handlers
+  const handlePreviousLesson = async () => {
     if (currentLessonIndex > 0) {
+      const prevLessonId = courseContent.lessons[currentLessonIndex - 1]._id;
+      // Update current lesson in backend
+      await axios.post(`${url}/api/v1/progress/${courseId}/lesson/${prevLessonId}/current`, {}, { withCredentials: true });
       setCurrentLessonIndex(currentLessonIndex - 1);
     }
   };
 
-  const handleNextLesson = () => {
+  const handleNextLesson = async () => {
     if (currentLessonIndex < totalLessons - 1) {
-      setCurrentLessonIndex(currentLessonIndex + 1);
+      const nextLessonId = courseContent.lessons[currentLessonIndex + 1]._id;
+      // Check access
+      const accessRes = await axios.post(`${url}/api/v1/progress/${courseId}/lesson/${nextLessonId}/can-access`, {}, { withCredentials: true });
+      if (accessRes.data.data.canAccess) {
+        await axios.post(`${url}/api/v1/progress/${courseId}/lesson/${nextLessonId}/current`, {}, { withCredentials: true });
+        setCurrentLessonIndex(currentLessonIndex + 1);
+      } else {
+        alert(accessRes.data.data.reason || 'You cannot access this lesson yet.');
+      }
     }
   };
 
-  const handleQuizComplete = (quizIndex, passed) => {
+  // Mark lesson as completed (after quiz passed)
+  const handleQuizComplete = async (quizIndex, passed) => {
     const quizKey = `${currentLessonIndex}-${quizIndex}`;
-    console.log(`Quiz completed: ${quizKey} = ${passed}`);
-    setQuizResults(prev => {
-      const newResults = {
-        ...prev,
-        [quizKey]: passed
-      };
-      console.log('Updated quiz results:', newResults);
-      return newResults;
-    });
+    setQuizResults(prev => ({ ...prev, [quizKey]: passed }));
+    // If all quiz questions passed, mark lesson as complete
+    if (passed) {
+      // Check if all questions for this lesson are passed
+      const allPassed = currentLesson.quiz?.questions?.every((_, idx) => {
+        const key = `${currentLessonIndex}-${idx}`;
+        return quizResults[key] === true || (quizIndex === idx && passed);
+      });
+      if (allPassed && !completedLessons.includes(currentLesson._id)) {
+        await axios.post(`${url}/api/v1/progress/${courseId}/lesson/${currentLesson._id}/complete`, { xpGained: 10 }, { withCredentials: true });
+        // Refresh progress
+        const progressRes = await axios.post(`${url}/api/v1/progress/${courseId}`, {}, { withCredentials: true });
+        setProgress(progressRes.data.data);
+      }
+    }
   };
 
-  const handleCourseComplete = () => {
+  // Complete course handler
+  const handleCourseComplete = async () => {
+    // Optionally, you can call a backend endpoint to finalize course completion or just navigate
     navigate('/certificate');
   };
 
-  // Improved quiz passing logic with better debugging
+  // Quiz passing logic
   const isQuizPassed = (() => {
-    // If no quiz or no questions, consider it passed
     if (!currentLesson.quiz || !currentLesson.quiz.questions || currentLesson.quiz.questions.length === 0) {
-      console.log('No quiz for this lesson, marking as passed');
       return true;
     }
-
-    const totalQuestions = currentLesson.quiz.questions.length;
-    console.log(`Checking ${totalQuestions} questions for lesson ${currentLessonIndex}`);
-
-    const allPassed = currentLesson.quiz.questions.every((_, index) => {
+    return currentLesson.quiz.questions.every((_, index) => {
       const quizKey = `${currentLessonIndex}-${index}`;
-      const isPassed = quizResults[quizKey] === true;
-      console.log(`Question ${index}: ${quizKey} = ${isPassed}`);
-      return isPassed;
+      return quizResults[quizKey] === true;
     });
-
-    console.log('All questions passed:', allPassed);
-    return allPassed;
   })();
 
   const isFirstLesson = currentLessonIndex === 0;
   const isLastLesson = currentLessonIndex === totalLessons - 1;
-  const isCourseComplete = progressPercentage === 100 && isQuizPassed;
+  const isCourseComplete = progress.isCompleted;
 
   return (
     <div className="flex min-h-screen bg-[#0d0d0d]">
-      {/* Course Navigation Sidebar */}
       <CourseSidebar 
         course={courseContent}
         currentLesson={currentLesson}
         currentLessonIndex={currentLessonIndex}
         totalLessons={totalLessons}
         progressPercentage={progressPercentage}
+        completedLessons={completedLessons}
       />
-
-      {/* Main Content */}
       <main className="flex-1 lg:ml-64 p-6 lg:p-8">
         <div className="max-w-4xl mx-auto">
           <motion.div
@@ -128,7 +148,6 @@ const CourseContain = () => {
             transition={{ duration: 0.6 }}
             key={`${currentLessonIndex}`}
           >
-            {/* Mobile Back Button */}
             <div className="lg:hidden mb-6">
               <Link 
                 to="/course" 
@@ -137,7 +156,6 @@ const CourseContain = () => {
                 ← Back to Course Generator
               </Link>
             </div>
-
             <div className="mb-8">
               <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 text-transparent bg-clip-text mb-4">
                 {currentLesson.title}
@@ -146,30 +164,16 @@ const CourseContain = () => {
                 Lesson {currentLessonIndex + 1} of {totalLessons} • {progressPercentage}% Complete
               </p>
             </div>
-
-            {/* Debug Info - Remove this in production */}
-            <div className="mb-4 p-4 bg-gray-800 rounded-lg text-sm">
-              <p>Debug Info:</p>
-              <p>Quiz Passed: {isQuizPassed ? 'Yes' : 'No'}</p>
-              <p>Quiz Questions: {currentLesson.quiz?.questions?.length || 0}</p>
-              <p>Quiz Results: {JSON.stringify(quizResults)}</p>
-            </div>
-
             {/* Content Sections */}
             <div className="space-y-8">
-              {/* Lesson Content */}
               <LessonContent lesson={currentLesson} />
-            
-              {/* Quiz Section */}
               {currentLesson.quiz?.questions?.map((question, index) => (
                 <QuizSection
-                  key={`${currentLessonIndex}-${index}`} // More specific key
+                  key={`${currentLessonIndex}-${index}`}
                   quiz={question}
                   onComplete={(passed) => handleQuizComplete(index, passed)}
                 />
               ))}
-
-              {/* Navigation Buttons */}
               <LessonNavigation 
                 onPrevious={handlePreviousLesson}
                 onNext={handleNextLesson}

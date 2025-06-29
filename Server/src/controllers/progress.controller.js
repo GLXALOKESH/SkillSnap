@@ -19,7 +19,7 @@ import { User } from "../models/user.models.js";
 export const initializeProgress = async (req, res) => {
   try {
     const { courseId } = req.params;
-    const userId = req.user.id; // Assuming user is authenticated
+    const userId = req.user._id; // Assuming user is authenticated
 
     // Check if progress already exists
     let progress = await Progress.findOne({ user: userId, course: courseId })

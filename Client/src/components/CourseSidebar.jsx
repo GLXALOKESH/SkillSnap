@@ -6,7 +6,8 @@ const CourseSidebar = ({
   currentLesson,
   currentLessonIndex,
   totalLessons,
-  progressPercentage
+  progressPercentage,
+  completedLessons = []
 }) => {
   return (
     <div>
@@ -44,36 +45,40 @@ const CourseSidebar = ({
         <div className="flex-1 overflow-hidden px-6 pb-6">
           <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 hover:scrollbar-thumb-pink-500 pr-2">
             <ul className="space-y-2">
-              {course.lessons.map((lesson, index) => (
-                <li
-                  key={lesson._id}
-                  className={`text-sm py-2 px-3 rounded-lg transition-all cursor-pointer ${
-                    index === currentLessonIndex 
-                      ? 'text-pink-400 bg-pink-500/10 border-l-2 border-pink-500' 
-                      : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2">
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${
-                      index < currentLessonIndex
-                        ? 'bg-green-500 text-white'
-                        : index === currentLessonIndex
-                        ? 'bg-pink-500 text-white'
-                        : 'bg-gray-600 text-gray-300'
-                    }`}>
-                      {index < currentLessonIndex ? '✓' : index + 1}
-                    </span>
-                    <span className="flex-1 truncate">{lesson.title}</span>
-                  </div>
-                  
-                  {/* Show quiz indicator if lesson has quiz */}
-                  {lesson.quiz?.questions?.length > 0 && (
-                    <div className="mt-1 ml-7">
-                      <span className="text-xs text-yellow-400">🎯 Quiz Available</span>
+              {course.lessons.map((lesson, index) => {
+                const isCompleted = completedLessons.includes(lesson._id);
+                return (
+                  <li
+                    key={lesson._id}
+                    className={`text-sm py-2 px-3 rounded-lg transition-all cursor-pointer ${
+                      index === currentLessonIndex 
+                        ? 'text-pink-400 bg-pink-500/10 border-l-2 border-pink-500' 
+                        : isCompleted
+                        ? 'text-green-400 bg-green-500/10 border-l-2 border-green-500'
+                        : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${
+                        isCompleted
+                          ? 'bg-green-500 text-white'
+                          : index === currentLessonIndex
+                          ? 'bg-pink-500 text-white'
+                          : 'bg-gray-600 text-gray-300'
+                      }`}>
+                        {isCompleted ? '✓' : index + 1}
+                      </span>
+                      <span className="flex-1 truncate">{lesson.title}</span>
                     </div>
-                  )}
-                </li>
-              ))}
+                    {/* Show quiz indicator if lesson has quiz */}
+                    {lesson.quiz?.questions?.length > 0 && (
+                      <div className="mt-1 ml-7">
+                        <span className="text-xs text-yellow-400">🎯 Quiz Available</span>
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </div>

@@ -193,8 +193,24 @@ const refreshAuthToken = asyncHandler(async (req, res) => {
   }
 });
 
+const getUserProfile = asyncHandler(async (req, res) => {
+  const { userId } = req.user._id;
+
+  if (!userId) {
+    throw new ApiError(400, "User ID is required");
+  }
+
+  const user = await User.findById(userId).select("-password -refreshToken");
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  return res.status(200).json(new ApiResponce(200, user, "User profile fetched successfully"));
+});
+
 const getCurrentUser = asyncHandler(async (req, res) => {
-  return res.status(200).json(200, res.user, "User fetched Successfully");
+  return res.status(200).json(new ApiResponce(200, req.user, "User fetched Successfully"));
 });
 
 
@@ -204,4 +220,5 @@ export {
   loginUser,
   refreshAuthToken,
   getCurrentUser,
+  getUserProfile,
 };
