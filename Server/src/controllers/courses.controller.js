@@ -157,8 +157,21 @@ const fetchCourseById = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponce("Course fetched successfully", course));
 });
 
+const fetchCourseStructure = asyncHandler(async (req, res) => {
+    const { courseId } = req.body;
+    const course = await Course.findById(courseId);
+    const modules = await Module.find({ course: courseId }).populate('lessons', 'title');
+
+    if (!course) {
+        throw new ApiError(404, "Course not found");
+    }
+
+    res.status(200).json(new ApiResponce("Course structure fetched successfully", {course:course, modules:modules}));
+});
+
 export {
     createCourse,
     fetchallCourses,
-    fetchCourseById
+    fetchCourseById,
+    fetchCourseStructure
 };

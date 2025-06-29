@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-
+import axios from 'axios';
 const CourseStructure = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
@@ -15,6 +15,9 @@ const CourseStructure = () => {
       try {
         // In a real app, this would be an API call using the courseId
         // For now, we'll use our demo data
+        const response = await axios.post('http://localhost:3000/api/v1/courses/structure', { courseId }, { withCredentials: true });
+        console.log('Fetching course data for:', response.data.data);
+        
         const courseData = {
           title: "Web3 Fundamentals: A Beginner's Guide",
           description: "Embark on your Web3 journey! This course provides a concise introduction to the core concepts of Web3, covering blockchain technology, decentralization, cryptocurrencies, and smart contracts. Learn how Web3 is shaping the future of the internet.",
