@@ -22,11 +22,12 @@ app.use(cookieParser())
 
 import userRouter from "./routes/user.route.js"
 import courseRouter from "./routes/courses.route.js"
-
+import progressRouter from "./routes/progress.router.js"
 //router decleration
 
 app.use("/api/v1/users", userRouter)
 app.use("/api/v1/courses", courseRouter)
+app.use("/api/v1/progress", progressRouter)
 
 
 
