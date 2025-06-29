@@ -35,6 +35,7 @@ function App() {
         <Route path="/learn/:courseId" element={<CourseContain />} />
         <Route path="/certificate" element={<Certificate />} />
         <Route path="/all-courses" element={<AllCertificate />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Dashboard />} />
         <Route path="/settings" element={<Dashboard />} />
         {/* Add more routes as needed */}
